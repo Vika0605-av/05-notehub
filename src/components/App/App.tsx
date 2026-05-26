@@ -1,7 +1,10 @@
 import css from "./App.module.css";
-import { useState, useEffect, } from "react";
 
-import { useDebouncedCallback,} from "use-debounce";
+import { useState } from "react";
+
+import { useDebouncedCallback } from "use-debounce";
+
+import { useQuery } from "@tanstack/react-query";
 
 import SearchBox from "../SearchBox/SearchBox";
 
@@ -13,17 +16,11 @@ import Modal from "../Modal/Modal";
 
 import NoteForm from "../NoteForm/NoteForm";
 
-import { fetchNotes, deleteNote, } from "../../services/noteService";
-
-import type { Note } from "../../types/note";
+import { fetchNotes } from "../../services/noteService";
 
 const PER_PAGE = 12;
 
 export default function App() {
-
-  const [notes, setNotes] =
-
-    useState<Note[]>([]);
 
   const [page, setPage] =
 
@@ -33,115 +30,59 @@ export default function App() {
 
     useState("");
 
-  const [pages, setPages] =
-
-    useState(0);
-
   const [isOpen, setIsOpen] =
 
     useState(false);
-
-useEffect(() => {
-
-  const loadNotes = async () => {
-
-    try {
-
-      const data = await fetchNotes({
-
-        page,
-
-        perPage: PER_PAGE,
-
-        search,
-
-      });
-
-      setNotes(data.notes);
-
-      setPages(data.totalPages);
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-
-  };
-
-  loadNotes();
-
-}, [page, search]);
 
   const debounceSearch =
 
     useDebouncedCallback(
 
-      async(value: string) => {
-        try {
-const data = await fetchNotes({
-  
-          page: 1,
-          perPage: PER_PAGE,
-          search: value,
-  
-        });
-        setNotes(data.notes);
-        setPages(data.totalPages);
-      } catch (error) {
+      (value: string) => {
 
-        console.log(error);
-      }
-    },
+        setPage(1);
+
+        setSearch(value);
+
+      },
+
       500
 
     );
 
-  const handleSearch = (
+  const { data, isLoading } =
 
-    value: string
+    useQuery({
 
-  ) => {
+      queryKey: [
 
-    setSearch(value);
-
-    debounceSearch(value);
-
-  };
-
-  const handleDelete = async (
-
-  id: string
-
-) => {
-
-  try {
-
-    await deleteNote(id);
-
-    const data =
-
-      await fetchNotes({
+        "notes",
 
         page,
 
-        perPage: PER_PAGE,
-
         search,
 
-      });
+      ],
 
-    setNotes(data.notes);
+      queryFn: () =>
 
-    setPages(data.totalPages);
+        fetchNotes({
 
-  } catch (error) {
+          page,
 
-    console.log(error);
+          perPage: PER_PAGE,
 
-  }
+          search,
 
-};
+        }),
+
+      placeholderData:
+
+        previousData =>
+
+          previousData,
+
+    });
 
   return (
 
@@ -149,21 +90,15 @@ const data = await fetchNotes({
 
       <header
 
-        className={
-
-          css.toolbar
-
-        }
+        className={css.toolbar}
 
       >
 
         <SearchBox
 
-          value={search}
+          onSearch={
 
-          onChange={
-
-            handleSearch
+            debounceSearch
 
           }
 
@@ -171,9 +106,19 @@ const data = await fetchNotes({
 
         <Pagination
 
-          page={page}
+          pageCount={
 
-          totalPages={pages}
+            data?.totalPages ??
+
+            0
+
+          }
+
+          currentPage={
+
+            page
+
+          }
 
           onPageChange={
 
@@ -185,11 +130,7 @@ const data = await fetchNotes({
 
         <button
 
-          className={
-
-            css.button
-
-          }
+          className={css.button}
 
           onClick={() =>
 
@@ -205,17 +146,29 @@ const data = await fetchNotes({
 
       </header>
 
-      <NoteList
+      {isLoading ? (
 
-        notes={notes}
+        <p>
 
-        onDelete={
+          Loading...
 
-          handleDelete
+        </p>
 
-        }
+      ) : (
 
-      />
+        <NoteList
+
+          notes={
+
+            data?.notes ??
+
+            []
+
+          }
+
+        />
+
+      )}
 
       {isOpen && (
 
@@ -231,41 +184,25 @@ const data = await fetchNotes({
 
           <NoteForm
 
-  onClose={() =>
+            onClose={() =>
 
-    setIsOpen(false)
+              setIsOpen(false)
 
-  }
+            }
 
-  onSuccess={async () => {
+            onSuccess={() =>
 
-    const data =
+              setIsOpen(false)
 
-      await fetchNotes({
+            }
 
-        page,
+          />
 
-        perPage: PER_PAGE,
-
-        search,
-
-      });
-
-    setNotes(data.notes);
-
-    setPages(
-
-      data.totalPages
-
-    );
-
-  }}
-
-/>
-</Modal>
+        </Modal>
 
       )}
 
     </div>
+
   );
 }

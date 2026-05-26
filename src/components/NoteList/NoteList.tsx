@@ -1,16 +1,20 @@
 import css from "./NoteList.module.css";
 
-import type  { Note } from "../../types/note"
+import type { Note } from "../../types/note";
 
-interface Props {
+import { deleteNote } from "../../services/noteService";
+
+import {
+
+  useMutation,
+
+  useQueryClient,
+
+} from "@tanstack/react-query";
+
+interface NoteListProps {
 
   notes: Note[];
-
-  onDelete: (
-
-    id: string
-
-  ) => void;
 
 }
 
@@ -18,9 +22,39 @@ export default function NoteList({
 
   notes,
 
-  onDelete,
+}: NoteListProps) {
 
-}: Props) {
+  const queryClient =
+
+    useQueryClient();
+
+  const mutation =
+
+    useMutation({
+
+      mutationFn: deleteNote,
+
+      onSuccess: () => {
+
+        queryClient.invalidateQueries({
+
+          queryKey: ["notes"],
+
+        });
+
+      },
+
+    });
+
+  const handleDelete = (
+
+    id: string
+
+  ) => {
+
+    mutation.mutate(id);
+
+  };
 
   return (
 
@@ -32,11 +66,7 @@ export default function NoteList({
 
           key={note.id}
 
-          className={
-
-            css.listItem
-
-          }
+          className={css.listItem}
 
         >
 
@@ -46,39 +76,15 @@ export default function NoteList({
 
           </h2>
 
-          <p
-
-            className={
-
-              css.content
-
-            }
-
-          >
+          <p className={css.content}>
 
             {note.content}
 
           </p>
 
-          <div
+          <div className={css.footer}>
 
-            className={
-
-              css.footer
-
-            }
-
-          >
-
-            <span
-
-              className={
-
-                css.tag
-
-              }
-
-            >
+            <span className={css.tag}>
 
               {note.tag}
 
@@ -86,19 +92,11 @@ export default function NoteList({
 
             <button
 
-              className={
-
-                css.button
-
-              }
+              className={css.button}
 
               onClick={() =>
 
-                onDelete(
-
-                  note.id
-
-                )
+                handleDelete(note.id)
 
               }
 
@@ -116,5 +114,6 @@ export default function NoteList({
 
     </ul>
 
-  )
+  );
+
 }

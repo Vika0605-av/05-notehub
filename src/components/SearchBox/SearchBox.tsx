@@ -2,17 +2,13 @@ import css from "./SearchBox.module.css";
 
 interface SearchBoxProps {
 
-  value: string;
-
-  onChange: (value: string) => void;
+  onSearch: (value: string) => void;
 
 }
 
 export default function SearchBox({
 
-  value,
-
-  onChange,
+  onSearch,
 
 }: SearchBoxProps) {
 
@@ -26,13 +22,15 @@ export default function SearchBox({
 
       placeholder="Search notes"
 
-      value={value}
+      onChange={(event) => {
 
-      onChange={(e) =>
+        onSearch(
 
-        onChange(e.target.value)
+          event.target.value
 
-      }
+        );
+
+      }}
 
     />
 

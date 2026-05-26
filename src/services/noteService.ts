@@ -4,7 +4,7 @@ import type { AxiosResponse } from "axios";
 
 import  type { Note, NoteTag } from "../types/note"
 
-const token = import.meta.env.VITE_NOTENHUB_TOKEN;
+const token = import.meta.env.VITE_NOTEHUB_TOKEN;
 
 const api = axios.create({
 
