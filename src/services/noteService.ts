@@ -34,8 +34,6 @@ export interface FetchNotesResponse {
 
   totalPages: number;
 
-  currentPage: number;
-
 }
 
 export interface CreateNoteData {

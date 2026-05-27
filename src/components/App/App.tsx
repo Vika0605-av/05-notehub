@@ -103,7 +103,7 @@ export default function App() {
           }
 
         />
-
+{(data?.totalPages ?? 0) > 1 && (
         <Pagination
 
           pageCount={
@@ -127,7 +127,7 @@ export default function App() {
           }
 
         />
-
+        )}
         <button
 
           className={css.button}

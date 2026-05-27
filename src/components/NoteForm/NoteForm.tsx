@@ -40,7 +40,23 @@ const validationSchema = Yup.object({
 
   content: Yup.string(),
 
-  tag: Yup.string().required(),
+  tag: Yup.string()
+
+  .oneOf([
+
+    "Todo",
+
+    "Work",
+
+    "Personal",
+
+    "Meeting",
+
+    "Shopping",
+
+  ])
+
+  .required(),
 
 });
 

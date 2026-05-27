@@ -11,7 +11,21 @@ import type {
 
 } from "react-paginate";
 
-const ReactPaginate: ComponentType<ReactPaginateProps> = ReactPaginateModule;
+type ModuleWithDefault<T> = {
+
+  default: T;
+
+};
+
+const ReactPaginate = (
+
+  ReactPaginateModule as unknown as ModuleWithDefault<
+
+    ComponentType<ReactPaginateProps>
+
+  >
+
+).default;
 interface PaginationProps {
 
   pageCount: number;
